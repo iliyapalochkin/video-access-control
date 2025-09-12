@@ -102,16 +102,12 @@ const Index = () => {
         {/* Видеоплеер */}
         <div className="relative mb-8">
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
-            <video 
-              className="w-full h-full object-cover"
-              controls
-              poster="/img/18d73cf1-04da-4a9b-bcf3-36352fa41069.jpg"
-            >
-              <source src="https://disk.yandex.ru/i/9ULusRPdA4cVJQ/download?v=2" type="video/mp4" />
-              <p className="text-white text-center p-8">
-                Ваш браузер не поддерживает воспроизведение видео.
-              </p>
-            </video>
+            <iframe 
+              src="https://disk.yandex.ru/i/9ULusRPdA4cVJQ"
+              className="w-full h-full"
+              allow="autoplay; fullscreen"
+              allowFullScreen
+            ></iframe>
           </div>
         </div>
 
