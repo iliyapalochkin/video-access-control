@@ -107,12 +107,9 @@ const Index = () => {
               controls
               poster="/img/18d73cf1-04da-4a9b-bcf3-36352fa41069.jpg"
             >
-              <source src="/video.mp4" type="video/mp4" />
-              <source src="/video.webm" type="video/webm" />
+              <source src="https://disk.yandex.ru/i/9ULusRPdA4cVJQ/download" type="video/mp4" />
               <p className="text-white text-center p-8">
                 Ваш браузер не поддерживает воспроизведение видео.
-                <br />
-                Пожалуйста, загрузите файл video.mp4 в папку public/
               </p>
             </video>
           </div>
