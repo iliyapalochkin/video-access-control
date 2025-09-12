@@ -102,12 +102,28 @@ const Index = () => {
         {/* Видеоплеер */}
         <div className="relative mb-8">
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
-            <iframe
-              src="https://drive.google.com/file/d/1nQSqIPcATdmdCvmjLyRMY0-D81-tPeo5/preview"
-              className="w-full h-full border-0"
-              allow="autoplay"
-              allowFullScreen
-            ></iframe>
+            <div className="relative w-full h-full bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+              <img 
+                src="/img/18d73cf1-04da-4a9b-bcf3-36352fa41069.jpg" 
+                alt="Video preview"
+                className="absolute inset-0 w-full h-full object-cover opacity-50"
+              />
+              <div className="relative z-10 text-center">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full p-6 mb-4 mx-auto w-20 h-20 flex items-center justify-center">
+                  <Icon name="Play" size={40} className="text-white ml-1" />
+                </div>
+                <h3 className="text-white text-xl font-bold mb-4">Демо видео</h3>
+                <a 
+                  href="https://drive.google.com/file/d/1nQSqIPcATdmdCvmjLyRMY0-D81-tPeo5/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Icon name="ExternalLink" size={20} className="mr-2" />
+                  Посмотреть видео
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
