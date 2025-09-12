@@ -135,31 +135,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Контактная информация */}
-        <div className="text-center bg-white p-8 rounded-lg shadow-lg">
-          <h3 className="text-2xl font-semibold mb-4 text-gray-900">
-            Остались вопросы?
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Свяжитесь с нами для получения дополнительной информации
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="mailto:info@example.com" 
-              className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Icon name="Mail" size={20} />
-              Написать на почту
-            </a>
-            <a 
-              href="tel:+79000000000" 
-              className="flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Icon name="Phone" size={20} />
-              Позвонить
-            </a>
-          </div>
-        </div>
+
       </div>
     </div>
   );
