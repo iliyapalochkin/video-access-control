@@ -118,6 +118,13 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Кнопка CTA */}
+        <div className="text-center mb-8">
+          <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl">
+            СТАТЬ АРТИСТОМ
+          </button>
+        </div>
+
         {/* Таймер */}
         <div className="text-center mb-8">
           <p className="text-lg font-medium text-gray-700 mb-2">
