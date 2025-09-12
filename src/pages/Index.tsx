@@ -104,32 +104,19 @@ const Index = () => {
         {/* Видеоплеер */}
         <div className="relative mb-8">
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
-            {!videoPlaying ? (
-              <div 
-                className="relative w-full h-full cursor-pointer group"
-                onClick={handlePlayVideo}
-              >
-                <img 
-                  src="/img/18d73cf1-04da-4a9b-bcf3-36352fa41069.jpg"
-                  alt="Превью видео"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-300"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-blue-600 rounded-full p-6 group-hover:bg-blue-700 group-hover:scale-110 transition-all duration-300 shadow-xl">
-                    <Icon name="Play" size={48} className="text-white ml-1" />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <Icon name="Play" size={64} className="mx-auto mb-4 opacity-50" />
-                  <p className="text-lg">Здесь будет ваше видео</p>
-                  <p className="text-sm opacity-70 mt-2">Замените на URL вашего видео</p>
-                </div>
-              </div>
-            )}
+            <video 
+              className="w-full h-full object-cover"
+              controls
+              poster="/img/18d73cf1-04da-4a9b-bcf3-36352fa41069.jpg"
+            >
+              <source src="/video.mp4" type="video/mp4" />
+              <source src="/video.webm" type="video/webm" />
+              <p className="text-white text-center p-8">
+                Ваш браузер не поддерживает воспроизведение видео.
+                <br />
+                Пожалуйста, загрузите файл video.mp4 в папку public/
+              </p>
+            </video>
           </div>
         </div>
 
