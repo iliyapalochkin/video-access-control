@@ -102,12 +102,16 @@ const Index = () => {
         {/* Видеоплеер */}
         <div className="relative mb-8">
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
-            <iframe 
-              src="https://disk.yandex.ru/i/9ULusRPdA4cVJQ"
-              className="w-full h-full"
-              allow="autoplay; fullscreen"
-              allowFullScreen
-            ></iframe>
+            <video 
+              className="w-full h-full object-cover"
+              controls
+              poster="/img/18d73cf1-04da-4a9b-bcf3-36352fa41069.jpg"
+            >
+              <source src="/video.mp4" type="video/mp4" />
+              <p className="text-white text-center p-8">
+                Загрузите видео в папку public/ или подключите GitHub
+              </p>
+            </video>
           </div>
         </div>
 
