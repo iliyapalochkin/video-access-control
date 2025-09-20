@@ -7,7 +7,7 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://disk.yandex.ru/i/hvkGnaux59Q6nw/direct");
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("");
   const [showUploader, setShowUploader] = useState<boolean>(false);
 
   useEffect(() => {
@@ -110,30 +110,50 @@ const Index = () => {
         {/* Видеоплеер */}
         <div className="relative mb-8">
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl relative">
-            <video
-              className="w-full h-full object-cover"
-              controls
-              preload="metadata"
-              id="custom-player"
-            >
-              <source src={currentVideoUrl} type="video/mp4" />
-              Ваш браузер не поддерживает воспроизведение видео.
-            </video>
-            
-            {/* Кастомный интерфейс поверх видео */}
-            <div className="absolute inset-0 pointer-events-none">
-              {/* Кастомная кнопка play/pause по центру */}
-              {!videoPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
-                  <button 
-                    onClick={handlePlayVideo}
-                    className="bg-red-600 hover:bg-red-700 text-white p-6 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300"
+            {currentVideoUrl ? (
+              <>
+                <video
+                  className="w-full h-full object-cover"
+                  controls
+                  preload="metadata"
+                  id="custom-player"
+                >
+                  <source src={currentVideoUrl} type="video/mp4" />
+                  Ваш браузер не поддерживает воспроизведение видео.
+                </video>
+                
+                {/* Кастомный интерфейс поверх видео */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {/* Кастомная кнопка play/pause по центру */}
+                  {!videoPlaying && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
+                      <button 
+                        onClick={handlePlayVideo}
+                        className="bg-red-600 hover:bg-red-700 text-white p-6 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300"
+                      >
+                        <Icon name="Play" size={48} className="ml-1" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <Icon name="Video" size={64} className="mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-xl font-semibold mb-2">Видео не загружено</h3>
+                  <p className="text-gray-300 mb-4">
+                    Нажмите кнопку ниже, чтобы загрузить ваше видео
+                  </p>
+                  <button
+                    onClick={() => setShowUploader(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
                   >
-                    <Icon name="Play" size={48} className="ml-1" />
+                    Загрузить видео
                   </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -180,6 +200,14 @@ const Index = () => {
                   onVideoSelect={(videoUrl: string) => {
                     setCurrentVideoUrl(videoUrl);
                     setShowUploader(false);
+                    setVideoPlaying(false);
+                    // Принудительно обновляем плеер
+                    setTimeout(() => {
+                      const video = document.getElementById('custom-player') as HTMLVideoElement;
+                      if (video) {
+                        video.load();
+                      }
+                    }, 100);
                   }}
                 />
               </div>
