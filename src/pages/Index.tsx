@@ -7,8 +7,8 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://vkvideo.ru/video-211232966_456240145");
-  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex'>('vk');
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://drive.google.com/file/d/1eXbat2EkxhehBMJc7iE3sgM-RoThojFo/view?usp=sharing");
+  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google'>('google');
 
   // Функция для определения типа видео и получения embed URL
   const getVideoInfo = (url: string) => {
@@ -27,6 +27,17 @@ const Index = () => {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       // YouTube логика
       return { type: 'youtube' as const, embedUrl: url };
+    }
+
+    if (url.includes('drive.google.com')) {
+      // Google Drive - преобразуем в embed ссылку
+      const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      if (fileIdMatch) {
+        const fileId = fileIdMatch[1];
+        const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+        return { type: 'google' as const, embedUrl: embedUrl };
+      }
+      return { type: 'file' as const, embedUrl: url };
     }
     
     if (url.includes('rutube.ru')) {
@@ -190,6 +201,18 @@ const Index = () => {
                 }
 
                 if (videoInfo.type === 'yandex') {
+                  return (
+                    <iframe
+                      src={videoInfo.embedUrl}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allowFullScreen
+                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
+                    />
+                  );
+                }
+
+                if (videoInfo.type === 'google') {
                   return (
                     <iframe
                       src={videoInfo.embedUrl}
