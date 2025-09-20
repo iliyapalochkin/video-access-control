@@ -1,13 +1,15 @@
 import json
-import time
+import base64
+import os
+import uuid
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Upload and serve video files for the website
-    Args: event - dict with httpMethod, body, queryStringParameters
-          context - object with function metadata
-    Returns: HTTP response dict with video upload/serve functionality
+    Загрузка видеофайлов на сервер для постоянного хранения
+    Args: event - dict с httpMethod, body (base64 видео), headers
+          context - объект с request_id, function_name и др.
+    Returns: HTTP response с URL загруженного видео
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -17,86 +19,80 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': '',
-            'isBase64Encoded': False
+            'body': ''
         }
     
-    elif method == 'GET':
-        # Получение списка видео или конкретного видео
-        params = event.get('queryStringParameters', {}) or {}
-        video_id = params.get('video_id')
-        
-        if video_id:
-            # Возвращаем информацию о конкретном видео
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'video_id': video_id,
-                    'status': 'available',
-                    'stream_url': f'https://functions.poehali.dev/video-stream?id={video_id}',
-                    'upload_url': 'https://functions.poehali.dev/972ec2bc-ed85-4ed1-8cfa-eaba5692cc4c'
-                }),
-                'isBase64Encoded': False
-            }
-        else:
-            # Возвращаем список всех видео
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'videos': [
-                        {'id': 'demo_video', 'name': 'Demo Video', 'duration': '5:30'}
-                    ],
-                    'upload_url': 'https://functions.poehali.dev/972ec2bc-ed85-4ed1-8cfa-eaba5692cc4c',
-                    'instructions': 'POST video as base64 in body with filename'
-                }),
-                'isBase64Encoded': False
-            }
+    if method != 'POST':
+        return {
+            'statusCode': 405,
+            'headers': {'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Method not allowed'})
+        }
     
-    elif method == 'POST':
-        # Загрузка видео - упрощенная версия
+    try:
+        # Парсим данные
+        body_data = json.loads(event.get('body', '{}'))
+        
+        # Получаем base64 данные видео
+        video_data = body_data.get('videoData')
+        filename = body_data.get('filename', 'video.mp4')
+        
+        if not video_data:
+            return {
+                'statusCode': 400,
+                'headers': {'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'No video data provided'})
+            }
+        
+        # Декодируем base64
         try:
-            body = event.get('body', '{}')
-            if body:
-                body_data = json.loads(body)
-                filename = body_data.get('filename', 'video.mp4')
-                video_data = body_data.get('video_data', '')
-                
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({
-                        'success': True,
-                        'video_id': f'video_{int(time.time())}',
-                        'filename': filename,
-                        'message': 'Video upload endpoint ready'
-                    }),
-                    'isBase64Encoded': False
-                }
-            else:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'No data provided'}),
-                    'isBase64Encoded': False
-                }
-                
+            # Убираем префикс data:video/mp4;base64, если есть
+            if ',' in video_data:
+                video_data = video_data.split(',')[1]
+            
+            video_bytes = base64.b64decode(video_data)
         except Exception as e:
             return {
-                'statusCode': 500,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': str(e)}),
-                'isBase64Encoded': False
+                'statusCode': 400,
+                'headers': {'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'Invalid base64 data: {str(e)}'})
             }
-    
-    return {
-        'statusCode': 405,
-        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'error': 'Method not allowed'}),
-        'isBase64Encoded': False
-    }
+        
+        # Генерируем уникальное имя файла
+        file_extension = filename.split('.')[-1] if '.' in filename else 'mp4'
+        unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
+        
+        # Сохраняем файл во временную директорию
+        temp_path = f"/tmp/{unique_filename}"
+        with open(temp_path, 'wb') as f:
+            f.write(video_bytes)
+        
+        # В реальном проекте здесь был бы загрузка в S3/Яндекс.Диск
+        # Пока возвращаем путь к временному файлу
+        file_size = len(video_bytes)
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'success': True,
+                'filename': unique_filename,
+                'size': file_size,
+                'url': f'/tmp/{unique_filename}',  # Временно
+                'message': f'Video uploaded successfully. Size: {file_size} bytes'
+            })
+        }
+        
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': f'Server error: {str(e)}'})
+        }

@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get current video URL",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "current_video_url": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Save new video URL",
+      "method": "POST",
+      "body": {
+        "video_url": "blob:http://example.com/test-video",
+        "filename": "test.mp4",
+        "file_size": 1024
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "video_url": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

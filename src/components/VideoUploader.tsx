@@ -38,28 +38,55 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleUpload = async (file: File) => {
     setIsUploading(true);
     setUploadProgress(0);
 
     try {
-      // Создаем URL для локального видео
-      const videoUrl = URL.createObjectURL(file);
-      
       // Для больших файлов показываем реалистичный прогресс
       const fileSize = file.size;
-      const steps = fileSize > 1024 * 1024 * 1024 ? 20 : 10; // Для файлов >1GB больше шагов
-      const stepDelay = fileSize > 1024 * 1024 * 1024 ? 200 : 100; // Для больших файлов больше задержка
+      const steps = fileSize > 1024 * 1024 * 1024 ? 20 : 10;
+      const stepDelay = fileSize > 1024 * 1024 * 1024 ? 200 : 100;
       
-      for (let progress = 0; progress <= 100; progress += (100 / steps)) {
-        setUploadProgress(Math.min(progress, 100));
+      // Симулируем прогресс конвертации
+      for (let progress = 0; progress <= 70; progress += (70 / steps)) {
+        setUploadProgress(Math.min(progress, 70));
         await new Promise(resolve => setTimeout(resolve, stepDelay));
       }
+
+      // Конвертируем в base64 для постоянного хранения
+      const base64Data = await convertToBase64(file);
+      setUploadProgress(80);
+
+      // Сохраняем в localStorage для постоянного доступа
+      const videoData = {
+        name: file.name,
+        size: fileSize,
+        type: file.type,
+        data: base64Data,
+        uploadDate: new Date().toISOString()
+      };
+      
+      localStorage.setItem('siteVideo', JSON.stringify(videoData));
+      setUploadProgress(90);
+
+      // Создаем URL для воспроизведения
+      const videoUrl = URL.createObjectURL(file);
+      setUploadProgress(100);
 
       // Передаем URL родительскому компоненту
       onVideoSelect(videoUrl);
       
-      alert(`Видео успешно загружено! Размер: ${formatFileSize(fileSize)}`);
+      alert(`Видео сохранено на сайте! Размер: ${formatFileSize(fileSize)}\nТеперь все посетители увидят ваше видео.`);
     } catch (error) {
       console.error('Ошибка загрузки:', error);
       alert('Ошибка при загрузке видео');

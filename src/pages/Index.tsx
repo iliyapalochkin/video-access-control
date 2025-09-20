@@ -8,6 +8,29 @@ const Index = () => {
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("");
+
+  // Загружаем сохраненное видео при загрузке страницы
+  useEffect(() => {
+    const savedVideo = localStorage.getItem('siteVideo');
+    if (savedVideo) {
+      try {
+        const videoData = JSON.parse(savedVideo);
+        // Создаем blob из base64 данных
+        const base64Data = videoData.data.split(',')[1];
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: videoData.type });
+        const videoUrl = URL.createObjectURL(blob);
+        setCurrentVideoUrl(videoUrl);
+      } catch (error) {
+        console.error('Ошибка загрузки сохраненного видео:', error);
+      }
+    }
+  }, []);
   const [showUploader, setShowUploader] = useState<boolean>(false);
 
   useEffect(() => {

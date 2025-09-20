@@ -1,12 +1,17 @@
 {
   "tests": [
     {
-      "name": "Get video list",
-      "method": "GET", 
+      "name": "Test video upload endpoint",
+      "method": "POST",
+      "body": {
+        "videoData": "VGVzdCB2aWRlbyBkYXRh",
+        "filename": "test.mp4"
+      },
       "expectedStatus": 200,
       "expectedBody": {
-        "videos": "array",
-        "upload_url": "string"
+        "success": true,
+        "filename": "string",
+        "size": "number"
       },
       "bodyMatcher": "partial"
     }
