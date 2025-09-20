@@ -7,8 +7,8 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("");
-  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google'>('file');
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://mega.nz/file/nhIizCAa#U-pu_uTnE_dWg3jwu3VlVBsOqO97dt99l-ed7u7aDHo");
+  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google' | 'mega'>('mega');
 
   // Функция для определения типа видео и получения embed URL
   const getVideoInfo = (url: string) => {
@@ -43,6 +43,12 @@ const Index = () => {
     if (url.includes('rutube.ru')) {
       // RuTube логика
       return { type: 'rutube' as const, embedUrl: url };
+    }
+
+    if (url.includes('mega.nz')) {
+      // Mega.nz - используем iframe для встраивания
+      const embedUrl = url.replace('mega.nz/file/', 'mega.nz/embed/');
+      return { type: 'mega' as const, embedUrl: embedUrl };
     }
 
     if (url.includes('disk.yandex.ru')) {
@@ -213,6 +219,18 @@ const Index = () => {
                 }
 
                 if (videoInfo.type === 'google') {
+                  return (
+                    <iframe
+                      src={videoInfo.embedUrl}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allowFullScreen
+                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
+                    />
+                  );
+                }
+
+                if (videoInfo.type === 'mega') {
                   return (
                     <iframe
                       src={videoInfo.embedUrl}
