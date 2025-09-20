@@ -20,14 +20,22 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
       return;
     }
 
-    // Проверяем размер (максимум 100MB)
-    const maxSize = 100 * 1024 * 1024; // 100MB
+    // Проверяем размер (максимум 5GB)
+    const maxSize = 5 * 1024 * 1024 * 1024; // 5GB
     if (file.size > maxSize) {
-      alert('Файл слишком большой. Максимум 100MB');
+      alert('Файл слишком большой. Максимум 5GB');
       return;
     }
 
     handleUpload(file);
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const handleUpload = async (file: File) => {
@@ -38,16 +46,20 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
       // Создаем URL для локального видео
       const videoUrl = URL.createObjectURL(file);
       
-      // Симулируем прогресс загрузки
-      for (let progress = 0; progress <= 100; progress += 10) {
-        setUploadProgress(progress);
-        await new Promise(resolve => setTimeout(resolve, 100));
+      // Для больших файлов показываем реалистичный прогресс
+      const fileSize = file.size;
+      const steps = fileSize > 1024 * 1024 * 1024 ? 20 : 10; // Для файлов >1GB больше шагов
+      const stepDelay = fileSize > 1024 * 1024 * 1024 ? 200 : 100; // Для больших файлов больше задержка
+      
+      for (let progress = 0; progress <= 100; progress += (100 / steps)) {
+        setUploadProgress(Math.min(progress, 100));
+        await new Promise(resolve => setTimeout(resolve, stepDelay));
       }
 
       // Передаем URL родительскому компоненту
       onVideoSelect(videoUrl);
       
-      alert('Видео успешно загружено!');
+      alert(`Видео успешно загружено! Размер: ${formatFileSize(fileSize)}`);
     } catch (error) {
       console.error('Ошибка загрузки:', error);
       alert('Ошибка при загрузке видео');
@@ -65,7 +77,7 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
         <h3 className="text-lg font-semibold mb-2">Загрузить видео</h3>
         
         <p className="text-gray-600 mb-4">
-          Выберите видеофайл с компьютера (максимум 100MB)
+          Выберите видеофайл с компьютера (максимум 5GB)
         </p>
 
         {isUploading ? (
@@ -99,7 +111,7 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
 
         <div className="mt-4 text-xs text-gray-500">
           <p>Поддерживаемые форматы: MP4, AVI, MOV, WMV</p>
-          <p>Максимальный размер: 100MB</p>
+          <p>Максимальный размер: 5GB</p>
         </div>
       </div>
     </div>
