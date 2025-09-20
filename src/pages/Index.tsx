@@ -7,8 +7,8 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://vkvideo.ru/video-211232966_456240145");
-  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube'>('vk');
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://disk.yandex.ru/i/hvkGnaux59Q6nw");
+  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube'>('file');
 
   // Функция для определения типа видео и получения embed URL
   const getVideoInfo = (url: string) => {
@@ -35,7 +35,12 @@ const Index = () => {
     }
 
     if (url.includes('disk.yandex.ru')) {
-      // Яндекс.Диск - используем прямую ссылку как есть
+      // Яндекс.Диск - преобразуем в прямую ссылку для скачивания
+      if (url.includes('/i/')) {
+        // Формат /i/ нужно преобразовать в прямую ссылку
+        const directUrl = url.replace('/i/', '/d/') + '?download=1';
+        return { type: 'file' as const, embedUrl: directUrl };
+      }
       return { type: 'file' as const, embedUrl: url };
     }
     
