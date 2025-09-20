@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
+import VideoManager from '@/components/VideoManager';
 
 const Index = () => {
   const [accessTime, setAccessTime] = useState<number | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
+  const [showVideoManager, setShowVideoManager] = useState<boolean>(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://disk.yandex.ru/i/xR-Gi2KZcKoAgw");
 
   useEffect(() => {
     const storedAccessTime = localStorage.getItem('video_access_time');
@@ -113,7 +116,7 @@ const Index = () => {
               preload="metadata"
               id="custom-player"
             >
-              <source src="https://disk.yandex.ru/i/xR-Gi2KZcKoAgw" type="video/mp4" />
+              <source src={currentVideoUrl} type="video/mp4" />
               Ваш браузер не поддерживает воспроизведение видео.
             </video>
             
@@ -134,10 +137,17 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Кнопка CTA */}
-        <div className="text-center mb-8">
-          <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl">
+        {/* Кнопки управления */}
+        <div className="text-center mb-8 space-y-4">
+          <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl block mx-auto">
             СТАТЬ АРТИСТОМ
+          </button>
+          <button 
+            onClick={() => setShowVideoManager(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg flex items-center gap-2 mx-auto"
+          >
+            <Icon name="Video" size={20} />
+            Изменить видео
           </button>
         </div>
 
@@ -151,6 +161,32 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Модальное окно управления видео */}
+        {showVideoManager && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold">Управление видео</h2>
+                  <button
+                    onClick={() => setShowVideoManager(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <Icon name="X" size={24} />
+                  </button>
+                </div>
+                
+                <VideoManager 
+                  currentVideo={currentVideoUrl}
+                  onVideoChange={(newUrl: string) => {
+                    setCurrentVideoUrl(newUrl);
+                    setShowVideoManager(false);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

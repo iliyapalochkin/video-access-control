@@ -2,18 +2,25 @@ import React, { useState } from 'react';
 import VideoUploader from './VideoUploader';
 import Icon from '@/components/ui/icon';
 
-const VideoManager: React.FC = () => {
-  const [currentVideo, setCurrentVideo] = useState<string>('');
+interface VideoManagerProps {
+  currentVideo?: string;
+  onVideoChange: (videoUrl: string) => void;
+}
+
+const VideoManager: React.FC<VideoManagerProps> = ({ 
+  currentVideo = '', 
+  onVideoChange 
+}) => {
+  const [localVideo, setLocalVideo] = useState<string>(currentVideo);
   const [showUploader, setShowUploader] = useState(false);
 
   const handleVideoSelect = (videoUrl: string) => {
-    setCurrentVideo(videoUrl);
+    setLocalVideo(videoUrl);
     setShowUploader(false);
   };
 
   const handleUseVideo = () => {
-    // Здесь можно обновить основную страницу с новым видео
-    alert('Видео применено к странице!');
+    onVideoChange(localVideo);
   };
 
   return (
@@ -21,12 +28,12 @@ const VideoManager: React.FC = () => {
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-bold mb-6">Управление видео</h2>
         
-        {currentVideo ? (
+        {localVideo ? (
           <div className="space-y-6">
             {/* Превью видео */}
             <div className="aspect-video bg-black rounded-lg overflow-hidden">
               <video
-                src={currentVideo}
+                src={localVideo}
                 controls
                 className="w-full h-full object-cover"
               >
@@ -53,7 +60,7 @@ const VideoManager: React.FC = () => {
               </button>
               
               <button
-                onClick={() => setCurrentVideo('')}
+                onClick={() => setLocalVideo('')}
                 className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2"
               >
                 <Icon name="Trash2" size={20} />
