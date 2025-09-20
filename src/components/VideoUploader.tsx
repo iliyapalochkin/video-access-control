@@ -56,11 +56,20 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
     );
 
     if (!isSupported) {
-      alert('Поддерживаются ссылки с: VK Видео, YouTube, RuTube');
+      alert('Поддерживаются ссылки с Google Drive, Dropbox, YouTube, VK Видео и других облачных сервисов');
       return;
     }
 
-    onVideoSelect(videoUrl);
+    // Преобразуем Google Drive ссылку в прямую ссылку для просмотра
+    let processedUrl = videoUrl;
+    if (videoUrl.includes('drive.google.com/file/d/')) {
+      const fileId = videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1];
+      if (fileId) {
+        processedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+      }
+    }
+
+    onVideoSelect(processedUrl);
   };
 
   const handleCloudUrlSubmit = () => {
