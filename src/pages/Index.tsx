@@ -7,8 +7,8 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("");
-  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google' | 'mega'>('file');
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://drive.google.com/file/d/1eXbat2EkxhehBMJc7iE3sgM-RoThojFo/preview");
+  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google' | 'mega'>('google');
 
   // Функция для определения типа видео и получения embed URL
   const getVideoInfo = (url: string) => {
@@ -180,11 +180,25 @@ const Index = () => {
         {/* Заголовок */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4 text-gray-900">
-            Сделай это и твой трек услышат ТЫСЯЧИ человек
+            🎵 Эксклюзивное видео: Как продвинуть свой трек
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            В этом видео я рассказываю про систему, благодаря которой этот мир сможет тебя услышать
+            Смотрите прямо сейчас! Видео 2.4ГБ в высоком качестве - все секреты музыкального продвижения
           </p>
+          <div className="mt-4 flex items-center justify-center gap-4 text-sm text-green-600">
+            <div className="flex items-center gap-1">
+              <Icon name="CheckCircle" size={16} />
+              <span>Доступно всем</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Icon name="Clock" size={16} />
+              <span>Полная версия</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Icon name="Star" size={16} />
+              <span>HD качество</span>
+            </div>
+          </div>
         </div>
 
         {/* Видеоплеер */}
