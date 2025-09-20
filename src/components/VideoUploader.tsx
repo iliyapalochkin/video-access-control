@@ -8,6 +8,8 @@ interface VideoUploaderProps {
 const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [activeTab, setActiveTab] = useState<'file' | 'url'>('file');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,6 +30,33 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
     }
 
     handleUpload(file);
+  };
+
+  const handleUrlSubmit = () => {
+    if (!videoUrl.trim()) {
+      alert('Пожалуйста, введите ссылку на видео');
+      return;
+    }
+
+    // Проверяем поддерживаемые платформы
+    const supportedPlatforms = [
+      'vkvideo.ru',
+      'vk.com/video',
+      'youtube.com',
+      'youtu.be',
+      'rutube.ru'
+    ];
+
+    const isSupported = supportedPlatforms.some(platform => 
+      videoUrl.toLowerCase().includes(platform)
+    );
+
+    if (!isSupported) {
+      alert('Поддерживаются ссылки с: VK Видео, YouTube, RuTube');
+      return;
+    }
+
+    onVideoSelect(videoUrl);
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -103,8 +132,6 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
 
       // Передаем URL родительскому компоненту
       onVideoSelect(videoUrl);
-      
-      alert(`Видео сохранено на сайте! Размер: ${formatFileSize(fileSize)}\nТеперь все посетители увидят ваше видео.`);
     } catch (error) {
       console.error('Ошибка загрузки:', error);
       alert('Ошибка при загрузке видео');
@@ -115,51 +142,100 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-lg border-2 border-dashed border-gray-300 hover:border-blue-500 transition-colors">
-      <div className="text-center">
-        <Icon name="Upload" size={48} className="mx-auto mb-4 text-gray-400" />
-        
-        <h3 className="text-lg font-semibold mb-2">Загрузить видео</h3>
-        
-        <p className="text-gray-600 mb-4">
-          Выберите видеофайл с компьютера (максимум 5GB)<br/>
-          <span className="text-sm text-blue-600">До 50MB - постоянное хранение для всех | Свыше 50MB - только текущая сессия</span>
-        </p>
-
-        {isUploading ? (
-          <div className="mb-4">
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              Загрузка... {uploadProgress}%
-            </p>
-          </div>
-        ) : (
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-          >
-            Выбрать файл
-          </button>
-        )}
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="video/*"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
-
-        <div className="mt-4 text-xs text-gray-500">
-          <p>Поддерживаемые форматы: MP4, AVI, MOV, WMV</p>
-          <p>Максимальный размер: 5GB</p>
-        </div>
+    <div className="w-full max-w-md mx-auto">
+      <h3 className="text-lg font-semibold mb-4 text-center">Добавить видео</h3>
+      
+      {/* Табы */}
+      <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
+        <button
+          onClick={() => setActiveTab('url')}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            activeTab === 'url'
+              ? 'bg-white text-blue-600 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          По ссылке
+        </button>
+        <button
+          onClick={() => setActiveTab('file')}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            activeTab === 'file'
+              ? 'bg-white text-blue-600 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Файл с ПК
+        </button>
       </div>
+
+      {activeTab === 'url' ? (
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">
+            Поддерживаются: VK Видео, YouTube, RuTube
+          </p>
+          
+          <div className="mb-4">
+            <input
+              type="url"
+              placeholder="https://vkvideo.ru/video-..."
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          
+          <button
+            onClick={handleUrlSubmit}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+          >
+            Добавить видео
+          </button>
+        </div>
+      ) : (
+        <div className="text-center">
+          <Icon name="Upload" size={48} className="mx-auto mb-4 text-gray-400" />
+          
+          <p className="text-gray-600 mb-4">
+            Выберите видеофайл с компьютера (максимум 5GB)<br/>
+            <span className="text-sm text-blue-600">До 50MB - постоянное хранение | Свыше 50MB - только сессия</span>
+          </p>
+
+          {isUploading ? (
+            <div className="mb-4">
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-600 mt-2">
+                Загрузка... {uploadProgress}%
+              </p>
+            </div>
+          ) : (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Выбрать файл
+            </button>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="video/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+
+          <div className="mt-4 text-xs text-gray-500">
+            <p>Поддерживаемые форматы: MP4, AVI, MOV, WMV</p>
+            <p>Максимальный размер: 5GB</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

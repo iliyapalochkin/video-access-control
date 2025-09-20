@@ -7,7 +7,36 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("");
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://vkvideo.ru/video-229643643_456239017");
+  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube'>('vk');
+
+  // Функция для определения типа видео и получения embed URL
+  const getVideoInfo = (url: string) => {
+    if (url.includes('vkvideo.ru') || url.includes('vk.com/video')) {
+      // Извлекаем ID из VK ссылки
+      const match = url.match(/video(-?\d+_\d+)/);
+      if (match) {
+        const videoId = match[1];
+        return {
+          type: 'vk' as const,
+          embedUrl: `https://vk.com/video_ext.php?oid=${videoId.split('_')[0]}&id=${videoId.split('_')[1]}&hd=2`
+        };
+      }
+    }
+    
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      // YouTube логика
+      return { type: 'youtube' as const, embedUrl: url };
+    }
+    
+    if (url.includes('rutube.ru')) {
+      // RuTube логика
+      return { type: 'rutube' as const, embedUrl: url };
+    }
+    
+    // Обычный файл
+    return { type: 'file' as const, embedUrl: url };
+  };
 
   // Загружаем сохраненное видео при загрузке страницы
   useEffect(() => {
@@ -134,32 +163,51 @@ const Index = () => {
         <div className="relative mb-8">
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl relative">
             {currentVideoUrl ? (
-              <>
-                <video
-                  className="w-full h-full object-cover"
-                  controls
-                  preload="metadata"
-                  id="custom-player"
-                >
-                  <source src={currentVideoUrl} type="video/mp4" />
-                  Ваш браузер не поддерживает воспроизведение видео.
-                </video>
+              (() => {
+                const videoInfo = getVideoInfo(currentVideoUrl);
                 
-                {/* Кастомный интерфейс поверх видео */}
-                <div className="absolute inset-0 pointer-events-none">
-                  {/* Кастомная кнопка play/pause по центру */}
-                  {!videoPlaying && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
-                      <button 
-                        onClick={handlePlayVideo}
-                        className="bg-red-600 hover:bg-red-700 text-white p-6 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300"
-                      >
-                        <Icon name="Play" size={48} className="ml-1" />
-                      </button>
+                if (videoInfo.type === 'vk') {
+                  return (
+                    <iframe
+                      src={videoInfo.embedUrl}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allowFullScreen
+                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
+                    />
+                  );
+                }
+                
+                // Для обычных файлов
+                return (
+                  <>
+                    <video
+                      className="w-full h-full object-cover"
+                      controls
+                      preload="metadata"
+                      id="custom-player"
+                    >
+                      <source src={currentVideoUrl} type="video/mp4" />
+                      Ваш браузер не поддерживает воспроизведение видео.
+                    </video>
+                    
+                    {/* Кастомный интерфейс поверх видео */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      {/* Кастомная кнопка play/pause по центру */}
+                      {!videoPlaying && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
+                          <button 
+                            onClick={handlePlayVideo}
+                            className="bg-red-600 hover:bg-red-700 text-white p-6 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300"
+                          >
+                            <Icon name="Play" size={48} className="ml-1" />
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </>
+                  </>
+                );
+              })()
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
@@ -222,15 +270,19 @@ const Index = () => {
                 <VideoUploader 
                   onVideoSelect={(videoUrl: string) => {
                     setCurrentVideoUrl(videoUrl);
+                    const videoInfo = getVideoInfo(videoUrl);
+                    setVideoType(videoInfo.type);
                     setShowUploader(false);
                     setVideoPlaying(false);
-                    // Принудительно обновляем плеер
-                    setTimeout(() => {
-                      const video = document.getElementById('custom-player') as HTMLVideoElement;
-                      if (video) {
-                        video.load();
-                      }
-                    }, 100);
+                    // Принудительно обновляем плеер только для файлов
+                    if (videoInfo.type === 'file') {
+                      setTimeout(() => {
+                        const video = document.getElementById('custom-player') as HTMLVideoElement;
+                        if (video) {
+                          video.load();
+                        }
+                      }, 100);
+                    }
                   }}
                 />
               </div>
