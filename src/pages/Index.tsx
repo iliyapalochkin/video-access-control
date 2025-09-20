@@ -182,6 +182,9 @@ const Index = () => {
           <h1 className="text-4xl font-bold mb-4 text-gray-900">
             Сделай это и твой трек услышат ТЫСЯЧИ человек
           </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            В этом видео я рассказываю про систему, благодаря которой этот мир сможет тебя услышать
+          </p>
         </div>
 
         {/* Видеоплеер */}
