@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
+import VideoUploader from '@/components/VideoUploader';
 
 const Index = () => {
   const [accessTime, setAccessTime] = useState<number | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://disk.yandex.ru/i/hvkGnaux59Q6nw/direct");
+  const [showUploader, setShowUploader] = useState<boolean>(false);
 
   useEffect(() => {
     const storedAccessTime = localStorage.getItem('video_access_time');
@@ -113,7 +116,7 @@ const Index = () => {
               preload="metadata"
               id="custom-player"
             >
-              <source src="https://disk.yandex.ru/i/hvkGnaux59Q6nw/direct" type="video/mp4" />
+              <source src={currentVideoUrl} type="video/mp4" />
               Ваш браузер не поддерживает воспроизведение видео.
             </video>
             
@@ -134,10 +137,17 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Кнопка CTA */}
-        <div className="text-center mb-8">
-          <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl">
+        {/* Кнопки CTA */}
+        <div className="text-center mb-8 space-y-4">
+          <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl block mx-auto">
             СТАТЬ АРТИСТОМ
+          </button>
+          <button 
+            onClick={() => setShowUploader(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg flex items-center gap-2 mx-auto"
+          >
+            <Icon name="Upload" size={20} />
+            Загрузить свое видео
           </button>
         </div>
 
@@ -151,7 +161,31 @@ const Index = () => {
           </div>
         </div>
 
-
+        {/* Модальное окно загрузки видео */}
+        {showUploader && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold">Загрузить ваше видео</h3>
+                  <button
+                    onClick={() => setShowUploader(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <Icon name="X" size={24} />
+                  </button>
+                </div>
+                
+                <VideoUploader 
+                  onVideoSelect={(videoUrl: string) => {
+                    setCurrentVideoUrl(videoUrl);
+                    setShowUploader(false);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
