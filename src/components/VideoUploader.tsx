@@ -63,24 +63,42 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
         await new Promise(resolve => setTimeout(resolve, stepDelay));
       }
 
-      // Конвертируем в base64 для постоянного хранения
-      const base64Data = await convertToBase64(file);
-      setUploadProgress(80);
-
-      // Сохраняем в localStorage для постоянного доступа
-      const videoData = {
-        name: file.name,
-        size: fileSize,
-        type: file.type,
-        data: base64Data,
-        uploadDate: new Date().toISOString()
-      };
-      
-      localStorage.setItem('siteVideo', JSON.stringify(videoData));
-      setUploadProgress(90);
-
       // Создаем URL для воспроизведения
       const videoUrl = URL.createObjectURL(file);
+      setUploadProgress(80);
+
+      // Для больших файлов (>50MB) используем только временное хранение
+      // localStorage не может хранить файлы >5-10MB
+      if (fileSize > 50 * 1024 * 1024) {
+        console.log('Файл слишком большой для localStorage, используем временное хранение');
+        setUploadProgress(100);
+        onVideoSelect(videoUrl);
+        alert(`Видео загружено! Размер: ${formatFileSize(fileSize)}\n⚠️ Большие файлы работают только в текущей сессии.\nДля постоянного хранения используйте файлы до 50МБ.`);
+        return;
+      }
+
+      // Для файлов до 50MB сохраняем в localStorage
+      try {
+        const base64Data = await convertToBase64(file);
+        setUploadProgress(85);
+
+        const videoData = {
+          name: file.name,
+          size: fileSize,
+          type: file.type,
+          data: base64Data,
+          uploadDate: new Date().toISOString()
+        };
+        
+        localStorage.setItem('siteVideo', JSON.stringify(videoData));
+        setUploadProgress(95);
+        
+        alert(`Видео сохранено на сайте! Размер: ${formatFileSize(fileSize)}\n✅ Теперь все посетители увидят ваше видео постоянно.`);
+      } catch (error) {
+        console.error('Ошибка сохранения в localStorage:', error);
+        alert(`Видео загружено, но не сохранено постоянно. Размер: ${formatFileSize(fileSize)}\n⚠️ Для постоянного хранения используйте файлы поменьше.`);
+      }
+
       setUploadProgress(100);
 
       // Передаем URL родительскому компоненту
@@ -104,7 +122,8 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
         <h3 className="text-lg font-semibold mb-2">Загрузить видео</h3>
         
         <p className="text-gray-600 mb-4">
-          Выберите видеофайл с компьютера (максимум 5GB)
+          Выберите видеофайл с компьютера (максимум 5GB)<br/>
+          <span className="text-sm text-blue-600">До 50MB - постоянное хранение для всех | Свыше 50MB - только текущая сессия</span>
         </p>
 
         {isUploading ? (
