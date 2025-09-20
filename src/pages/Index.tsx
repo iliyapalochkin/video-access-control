@@ -7,8 +7,8 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://drive.google.com/file/d/1eXbat2EkxhehBMJc7iE3sgM-RoThojFo/view?usp=sharing");
-  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google'>('google');
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("");
+  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google'>('file');
 
   // Функция для определения типа видео и получения embed URL
   const getVideoInfo = (url: string) => {
@@ -258,9 +258,9 @@ const Index = () => {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
                   <Icon name="Video" size={64} className="mx-auto mb-4 text-gray-400" />
-                  <h3 className="text-xl font-semibold mb-2">Видео не загружено</h3>
+                  <h3 className="text-xl font-semibold mb-2">Загрузите ваше видео</h3>
                   <p className="text-gray-300 mb-4">
-                    Нажмите кнопку ниже, чтобы загрузить ваше видео
+                    Выберите один из способов загрузки видео
                   </p>
                   <button
                     onClick={() => setShowUploader(true)}
