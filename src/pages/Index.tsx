@@ -180,25 +180,8 @@ const Index = () => {
         {/* Заголовок */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4 text-gray-900">
-            🎵 Эксклюзивное видео: Как продвинуть свой трек
+            Сделай это и твой трек услышат ТЫСЯЧИ человек
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Смотрите прямо сейчас! Видео 2.4ГБ в высоком качестве - все секреты музыкального продвижения
-          </p>
-          <div className="mt-4 flex items-center justify-center gap-4 text-sm text-green-600">
-            <div className="flex items-center gap-1">
-              <Icon name="CheckCircle" size={16} />
-              <span>Доступно всем</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Icon name="Clock" size={16} />
-              <span>Полная версия</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Icon name="Star" size={16} />
-              <span>HD качество</span>
-            </div>
-          </div>
         </div>
 
         {/* Видеоплеер */}
