@@ -234,16 +234,9 @@ const Index = () => {
         </div>
 
         {/* Кнопки CTA */}
-        <div className="text-center mb-8 space-y-4">
-          <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl block mx-auto">
+        <div className="text-center mb-8">
+          <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl">
             СТАТЬ АРТИСТОМ
-          </button>
-          <button 
-            onClick={() => setShowUploader(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg flex items-center gap-2 mx-auto"
-          >
-            <Icon name="Upload" size={20} />
-            Загрузить свое видео
           </button>
         </div>
 
