@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Test video service",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "status": "ready"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

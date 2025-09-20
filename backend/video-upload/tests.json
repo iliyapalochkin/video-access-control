@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Get video list",
+      "method": "GET", 
+      "expectedStatus": 200,
+      "expectedBody": {
+        "videos": "array",
+        "upload_url": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
