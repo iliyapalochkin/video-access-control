@@ -58,10 +58,10 @@ const Index = () => {
   const handlePlayVideo = () => {
     if (hasAccess) {
       setVideoPlaying(true);
-      // Автоматически запускаем видео через YouTube API
-      const iframe = document.getElementById('youtube-player') as HTMLIFrameElement;
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+      // Автоматически запускаем HTML5 видео
+      const video = document.getElementById('custom-player') as HTMLVideoElement;
+      if (video) {
+        video.play();
       }
     }
   };
@@ -107,20 +107,18 @@ const Index = () => {
         {/* Видеоплеер */}
         <div className="relative mb-8">
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl relative">
-            <iframe
-              src="https://www.youtube.com/embed/HnwyFI_f3Q4?controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&cc_load_policy=0&iv_load_policy=3&autohide=1&disablekb=1&playsinline=1&enablejsapi=1"
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              id="youtube-player"
-            ></iframe>
+            <video
+              className="w-full h-full object-cover"
+              controls
+              preload="metadata"
+              id="custom-player"
+            >
+              <source src="https://disk.yandex.ru/i/xR-Gi2KZcKoAgw" type="video/mp4" />
+              Ваш браузер не поддерживает воспроизведение видео.
+            </video>
             
             {/* Кастомный интерфейс поверх видео */}
             <div className="absolute inset-0 pointer-events-none">
-              {/* Скрываем углы с логотипом YouTube */}
-              <div className="absolute top-0 right-0 w-20 h-12 bg-black"></div>
-              <div className="absolute bottom-0 right-0 w-32 h-8 bg-black"></div>
-              
               {/* Кастомная кнопка play/pause по центру */}
               {!videoPlaying && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
@@ -132,9 +130,6 @@ const Index = () => {
                   </button>
                 </div>
               )}
-              
-              {/* Градиент снизу для скрытия элементов YouTube */}
-              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/80 to-transparent"></div>
             </div>
           </div>
         </div>
