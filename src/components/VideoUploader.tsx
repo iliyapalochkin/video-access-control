@@ -9,7 +9,7 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoUrl, setVideoUrl] = useState('');
-  const [activeTab, setActiveTab] = useState<'file' | 'url'>('file');
+  const [activeTab, setActiveTab] = useState<'file' | 'url' | 'cloud'>('cloud');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +53,27 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
 
     if (!isSupported) {
       alert('Поддерживаются ссылки с: VK Видео, YouTube, RuTube');
+      return;
+    }
+
+    onVideoSelect(videoUrl);
+  };
+
+  const handleCloudUrlSubmit = () => {
+    if (!videoUrl.trim()) {
+      alert('Пожалуйста, введите ссылку на видео из Яндекс.Диска');
+      return;
+    }
+
+    // Проверяем Яндекс.Диск
+    if (!videoUrl.includes('disk.yandex.ru')) {
+      alert('Пожалуйста, используйте ссылку с Яндекс.Диска\nФормат: https://disk.yandex.ru/d/...');
+      return;
+    }
+
+    // Проверяем формат прямой ссылки
+    if (!videoUrl.includes('/d/')) {
+      alert('Используйте прямую ссылку на файл:\n1. Откройте видео в Яндекс.Диске\n2. Нажмите "Поделиться"\n3. Выберите "Скопировать ссылку"\n4. Ссылка должна содержать /d/');
       return;
     }
 
@@ -148,18 +169,28 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
       {/* Табы */}
       <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
         <button
+          onClick={() => setActiveTab('cloud')}
+          className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-colors ${
+            activeTab === 'cloud'
+              ? 'bg-white text-blue-600 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Облако
+        </button>
+        <button
           onClick={() => setActiveTab('url')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+          className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-colors ${
             activeTab === 'url'
               ? 'bg-white text-blue-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
-          По ссылке
+          VK/YouTube
         </button>
         <button
           onClick={() => setActiveTab('file')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+          className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-colors ${
             activeTab === 'file'
               ? 'bg-white text-blue-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
@@ -169,7 +200,44 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
         </button>
       </div>
 
-      {activeTab === 'url' ? (
+      {activeTab === 'cloud' ? (
+        <div className="text-center">
+          <Icon name="Cloud" size={48} className="mx-auto mb-4 text-blue-500" />
+          
+          <p className="text-gray-600 mb-4">
+            Вставьте прямую ссылку с Яндекс.Диска<br/>
+            <span className="text-xs text-green-600">💡 Любой размер файла • Быстрая загрузка • Постоянный доступ</span>
+          </p>
+          
+          <div className="mb-4">
+            <input
+              type="url"
+              placeholder="https://disk.yandex.ru/d/..."
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          
+          <button
+            onClick={handleCloudUrlSubmit}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors mb-4"
+          >
+            Загрузить из облака
+          </button>
+
+          <div className="text-left text-xs text-gray-600 bg-gray-50 p-3 rounded-lg">
+            <h4 className="font-medium mb-2">📋 Как получить ссылку с Яндекс.Диска:</h4>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>Откройте disk.yandex.ru</li>
+              <li>Загрузите ваше видео</li>
+              <li>Нажмите на файл → кнопка "Поделиться"</li>
+              <li>Нажмите "Скопировать ссылку"</li>
+              <li>Вставьте ссылку сюда</li>
+            </ol>
+          </div>
+        </div>
+      ) : activeTab === 'url' ? (
         <div className="text-center">
           <p className="text-gray-600 mb-4">
             Поддерживаются: VK Видео, YouTube, RuTube

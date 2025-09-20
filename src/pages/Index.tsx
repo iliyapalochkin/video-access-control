@@ -33,8 +33,13 @@ const Index = () => {
       // RuTube логика
       return { type: 'rutube' as const, embedUrl: url };
     }
+
+    if (url.includes('disk.yandex.ru')) {
+      // Яндекс.Диск - используем прямую ссылку как есть
+      return { type: 'file' as const, embedUrl: url };
+    }
     
-    // Обычный файл
+    // Обычный файл или облачное хранилище
     return { type: 'file' as const, embedUrl: url };
   };
 
