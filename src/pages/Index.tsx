@@ -7,8 +7,8 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://disk.yandex.ru/i/hvkGnaux59Q6nw");
-  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube'>('file');
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://vkvideo.ru/video-211232966_456240145");
+  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex'>('vk');
 
   // Функция для определения типа видео и получения embed URL
   const getVideoInfo = (url: string) => {
@@ -35,13 +35,14 @@ const Index = () => {
     }
 
     if (url.includes('disk.yandex.ru')) {
-      // Яндекс.Диск - преобразуем в прямую ссылку для скачивания
+      // Яндекс.Диск - получаем прямую ссылку для скачивания
+      let directUrl = url;
       if (url.includes('/i/')) {
-        // Формат /i/ нужно преобразовать в прямую ссылку
-        const directUrl = url.replace('/i/', '/d/') + '?download=1';
-        return { type: 'file' as const, embedUrl: directUrl };
+        // Формируем API запрос для получения прямой ссылки
+        const publicKey = url.split('/i/')[1];
+        directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(url)}`;
       }
-      return { type: 'file' as const, embedUrl: url };
+      return { type: 'file' as const, embedUrl: directUrl };
     }
     
     // Обычный файл или облачное хранилище
@@ -177,6 +178,18 @@ const Index = () => {
                 const videoInfo = getVideoInfo(currentVideoUrl);
                 
                 if (videoInfo.type === 'vk') {
+                  return (
+                    <iframe
+                      src={videoInfo.embedUrl}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allowFullScreen
+                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
+                    />
+                  );
+                }
+
+                if (videoInfo.type === 'yandex') {
                   return (
                     <iframe
                       src={videoInfo.embedUrl}
