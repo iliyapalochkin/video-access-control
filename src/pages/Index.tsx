@@ -7,7 +7,7 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://vkvideo.ru/video-229643643_456239017");
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://vkvideo.ru/video-211232966_456240145");
   const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube'>('vk');
 
   // Функция для определения типа видео и получения embed URL
