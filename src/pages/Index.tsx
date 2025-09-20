@@ -335,26 +335,13 @@ const Index = () => {
         </div>
 
         {/* Кнопки CTA */}
-        <div className="text-center mb-8">
-          {showCtaButton ? (
-            <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl animate-pulse">
+        {showCtaButton && (
+          <div className="text-center mb-8">
+            <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl">
               СТАТЬ АРТИСТОМ
             </button>
-          ) : (
-            <div className="bg-gray-100 rounded-lg p-6 max-w-md mx-auto">
-              <Icon name="Clock" size={48} className="mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                Кнопка появится через
-              </h3>
-              <div className="text-3xl font-mono font-bold text-red-600 mb-2">
-                {formatTime(ctaTimeRemaining)}
-              </div>
-              <p className="text-sm text-gray-500">
-                Досмотрите видео до конца, чтобы получить доступ
-              </p>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Таймер */}
         <div className="text-center mb-8">
