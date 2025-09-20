@@ -34,6 +34,20 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
   };
 
   const handleDirectUpload = async (file: File) => {
+    // Предупреждаем пользователя о том, что видео будет видно только у него
+    const userConfirmed = window.confirm(`⚠️ ВАЖНО: Видео будет видно только на ВАШЕМ устройстве!
+
+🔍 Чтобы видео было доступно всем посетителям сайта:
+1. Загрузите видео на Google Drive, Dropbox или YouTube
+2. Получите публичную ссылку 
+3. Используйте вкладку "🔗 По ссылке"
+
+Продолжить загрузку только для вашего устройства?`);
+    
+    if (!userConfirmed) {
+      return;
+    }
+
     setIsUploading(true);
     setUploadProgress(0);
 
@@ -51,7 +65,7 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
       // Передаем URL для воспроизведения
       onVideoSelect(videoUrl);
       
-      alert(`✅ Видео готово к просмотру!\nРазмер: ${formatFileSize(file.size)}\nТип: ${file.type}\n\n🎬 Видео загружено и будет воспроизводиться прямо на сайте!`);
+      alert(`✅ Видео готово к просмотру на ВАШЕМ устройстве!\nРазмер: ${formatFileSize(file.size)}\nТип: ${file.type}\n\n⚠️ Другие пользователи НЕ увидят это видео!\n\n💡 Для публичного доступа используйте "🔗 По ссылке"`);
       
     } catch (error) {
       console.error('Ошибка загрузки:', error);
@@ -68,11 +82,11 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
         <div className="text-center">
           <Icon name="Upload" size={48} className="mx-auto mb-4 text-blue-500" />
           
-          <h3 className="text-lg font-semibold mb-2 text-gray-800">Загрузить видео на сайт</h3>
+          <h3 className="text-lg font-semibold mb-2 text-gray-800">Загрузить с устройства</h3>
           
           <p className="text-gray-600 mb-4 text-sm">
-            Видео будет воспроизводиться прямо на вашем сайте<br/>
-            <span className="text-blue-600 font-medium">💡 Любой размер • Мгновенное воспроизведение</span>
+            ⚠️ <span className="text-orange-600 font-medium">Видео будет видно только вам!</span><br/>
+            <span className="text-gray-500">Для всех посетителей используйте "🔗 По ссылке"</span>
           </p>
 
           {isUploading ? (

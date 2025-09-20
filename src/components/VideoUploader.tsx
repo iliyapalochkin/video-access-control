@@ -41,11 +41,14 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
 
     // Проверяем поддерживаемые платформы
     const supportedPlatforms = [
+      'drive.google.com',
+      'dropbox.com',
       'vkvideo.ru',
-      'vk.com/video',
+      'vk.com/video', 
       'youtube.com',
       'youtu.be',
-      'rutube.ru'
+      'rutube.ru',
+      'disk.yandex.ru'
     ];
 
     const isSupported = supportedPlatforms.some(platform => 
@@ -252,29 +255,6 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
               <li>Вставьте ссылку сюда</li>
             </ol>
           </div>
-        </div>
-      ) : activeTab === 'url' ? (
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">
-            Поддерживаются: VK Видео, YouTube, RuTube
-          </p>
-          
-          <div className="mb-4">
-            <input
-              type="url"
-              placeholder="https://vkvideo.ru/video-..."
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <button
-            onClick={handleUrlSubmit}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-          >
-            Добавить видео
-          </button>
         </div>
       ) : (
         <div className="text-center">
