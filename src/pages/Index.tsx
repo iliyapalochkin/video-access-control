@@ -113,7 +113,7 @@ const Index = () => {
               preload="metadata"
               id="custom-player"
             >
-              <source src="https://disk.yandex.ru/i/hvkGnaux59Q6nw" type="video/mp4" />
+              <source src="https://disk.yandex.ru/i/hvkGnaux59Q6nw/direct" type="video/mp4" />
               Ваш браузер не поддерживает воспроизведение видео.
             </video>
             
