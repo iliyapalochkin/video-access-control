@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import Icon from '@/components/ui/icon';
+import DirectVideoUploader from './DirectVideoUploader';
 
 interface VideoUploaderProps {
   onVideoSelect: (videoUrl: string) => void;
@@ -9,7 +10,7 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoUrl, setVideoUrl] = useState('');
-  const [activeTab, setActiveTab] = useState<'file' | 'url' | 'cloud'>('cloud');
+  const [activeTab, setActiveTab] = useState<'direct' | 'url' | 'cloud' | 'file'>('direct');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,40 +168,55 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
       <h3 className="text-lg font-semibold mb-4 text-center">Добавить видео</h3>
       
       {/* Табы */}
-      <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
+      <div className="grid grid-cols-2 gap-2 mb-4">
         <button
-          onClick={() => setActiveTab('cloud')}
-          className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-colors ${
-            activeTab === 'cloud'
-              ? 'bg-white text-blue-600 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+          onClick={() => setActiveTab('direct')}
+          className={`py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
+            activeTab === 'direct'
+              ? 'bg-blue-600 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          Облако
+          📱 Прямо на сайт
         </button>
         <button
           onClick={() => setActiveTab('url')}
-          className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-colors ${
+          className={`py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
             activeTab === 'url'
-              ? 'bg-white text-blue-600 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-blue-600 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          VK/YouTube
-        </button>
-        <button
-          onClick={() => setActiveTab('file')}
-          className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-colors ${
-            activeTab === 'file'
-              ? 'bg-white text-blue-600 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          Файл с ПК
+          🔗 По ссылке
         </button>
       </div>
 
-      {activeTab === 'cloud' ? (
+      {activeTab === 'direct' ? (
+        <DirectVideoUploader onVideoSelect={onVideoSelect} />
+      ) : activeTab === 'url' ? (
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">
+            Поддерживаются: VK Видео, YouTube, RuTube
+          </p>
+          
+          <div className="mb-4">
+            <input
+              type="url"
+              placeholder="https://vkvideo.ru/video-..."
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          
+          <button
+            onClick={handleUrlSubmit}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+          >
+            Добавить видео
+          </button>
+        </div>
+      ) : activeTab === 'cloud' ? (
         <div className="text-center">
           <Icon name="Cloud" size={48} className="mx-auto mb-4 text-blue-500" />
           

@@ -7,8 +7,8 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
   const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://mega.nz/file/nhIizCAa#U-pu_uTnE_dWg3jwu3VlVBsOqO97dt99l-ed7u7aDHo");
-  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google' | 'mega'>('mega');
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("");
+  const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google' | 'mega'>('file');
 
   // Функция для определения типа видео и получения embed URL
   const getVideoInfo = (url: string) => {
