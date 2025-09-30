@@ -10,7 +10,7 @@ const Index = () => {
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://drive.google.com/file/d/1eXbat2EkxhehBMJc7iE3sgM-RoThojFo/preview");
   const [videoType, setVideoType] = useState<'file' | 'vk' | 'youtube' | 'rutube' | 'yandex' | 'google' | 'mega'>('google');
   const [showCtaButton, setShowCtaButton] = useState<boolean>(false);
-  const [ctaTimeRemaining, setCtaTimeRemaining] = useState<number>(5 * 60 * 1000); // 5 минут в миллисекундах
+  const [ctaTimeRemaining, setCtaTimeRemaining] = useState<number>(1 * 60 * 1000); // 1 минута в миллисекундах
 
   // Функция для определения типа видео и получения embed URL
   const getVideoInfo = (url: string) => {
@@ -132,11 +132,11 @@ const Index = () => {
     }
   }, [timeRemaining]);
 
-  // Таймер для появления кнопки CTA через 5 минут
+  // Таймер для появления кнопки CTA через 1 минуту
   useEffect(() => {
     const ctaTimer = setTimeout(() => {
       setShowCtaButton(true);
-    }, 5 * 60 * 1000); // 5 минут
+    }, 1 * 60 * 1000); // 1 минута
 
     return () => clearTimeout(ctaTimer);
   }, []);
