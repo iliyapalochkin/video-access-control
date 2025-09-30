@@ -337,9 +337,16 @@ const Index = () => {
         {/* Кнопки CTA */}
         {showCtaButton && (
           <div className="text-center mb-8">
-            <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl">
-              СТАТЬ АРТИСТОМ
-            </button>
+            <a 
+              href="https://buro17.ru/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-block"
+            >
+              <button className="bg-red-600 hover:bg-red-700 text-white font-bold text-2xl px-12 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl">
+                СТАТЬ АРТИСТОМ
+              </button>
+            </a>
           </div>
         )}
 
