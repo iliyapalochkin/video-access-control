@@ -202,25 +202,6 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Кнопка "Скопировать ссылку" для мобильных */}
-        {currentVideoUrl && (
-          <div className="mb-4 text-center md:hidden">
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                alert('Ссылка скопирована! Откройте её в Яндекс Браузере для лучшего просмотра');
-              }}
-              className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg"
-            >
-              <Icon name="Copy" size={20} />
-              Скопировать ссылку для Яндекс Браузера
-            </button>
-            <p className="text-sm text-gray-500 mt-2">
-              Вставьте ссылку в Яндекс Браузер для полноэкранного просмотра
-            </p>
-          </div>
-        )}
-
         {/* Видеоплеер */}
         <div className="relative mb-8">
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl relative">
