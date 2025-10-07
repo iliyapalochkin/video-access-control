@@ -33,12 +33,44 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const convertToBase64 = (file: File): Promise<string> => {
+  const saveToIndexedDB = async (file: File): Promise<void> => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+      const request = indexedDB.open('VideoStorage', 1);
+      
+      request.onerror = () => reject(request.error);
+      
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains('videos')) {
+          db.createObjectStore('videos');
+        }
+      };
+      
+      request.onsuccess = () => {
+        const db = request.result;
+        const transaction = db.transaction(['videos'], 'readwrite');
+        const store = transaction.objectStore('videos');
+        
+        const videoData = {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          file: file,
+          uploadDate: new Date().toISOString()
+        };
+        
+        const putRequest = store.put(videoData, 'siteVideo');
+        
+        putRequest.onsuccess = () => {
+          db.close();
+          resolve();
+        };
+        
+        putRequest.onerror = () => {
+          db.close();
+          reject(putRequest.error);
+        };
+      };
     });
   };
 
@@ -48,37 +80,20 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
 
     try {
       const fileSize = file.size;
-      const maxSize = 100 * 1024 * 1024; // 100MB максимум для localStorage
+      const maxSize = 2 * 1024 * 1024 * 1024; // 2GB максимум
       
       setUploadProgress(10);
       
       if (fileSize > maxSize) {
-        alert(`⚠️ Файл слишком большой (${formatFileSize(fileSize)})!\n\nМаксимум для прямой загрузки: 100MB\n\n💡 Используйте вкладку "🔗 По ссылке" и загрузите видео на Google Drive, Dropbox или YouTube`);
+        alert(`⚠️ Файл слишком большой (${formatFileSize(fileSize)})!\n\nМаксимум: 2GB\n\n💡 Для больших файлов используйте вкладку "🔗 По ссылке" и загрузите на облачное хранилище`);
         return;
       }
       
-      setUploadProgress(20);
+      setUploadProgress(30);
       
-      // Конвертируем в base64
-      const base64Data = await convertToBase64(file);
-      setUploadProgress(60);
-      
-      // Сохраняем в localStorage
-      const videoData = {
-        name: file.name,
-        size: fileSize,
-        type: file.type,
-        data: base64Data,
-        uploadDate: new Date().toISOString()
-      };
-      
-      try {
-        localStorage.setItem('siteVideo', JSON.stringify(videoData));
-        setUploadProgress(80);
-      } catch (storageError) {
-        alert('⚠️ Не удалось сохранить видео в localStorage (превышен лимит).\n\n💡 Используйте файл меньшего размера или загрузите на облачное хранилище');
-        return;
-      }
+      // Сохраняем в IndexedDB (поддерживает большие файлы)
+      await saveToIndexedDB(file);
+      setUploadProgress(70);
       
       // Создаем URL для воспроизведения
       const videoUrl = URL.createObjectURL(file);
@@ -87,7 +102,7 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
       // Передаем URL для воспроизведения
       onVideoSelect(videoUrl);
       
-      alert(`✅ Видео сохранено и готово к просмотру!\nРазмер: ${formatFileSize(fileSize)}\nФормат: ${file.type}\n\n✨ Видео сохранено в браузере и будет доступно при следующих посещениях!`);
+      alert(`✅ Видео сохранено и готово к просмотру!\nРазмер: ${formatFileSize(fileSize)}\nФормат: ${file.type}\n\n✨ Видео сохранено в браузере и будет доступно при следующих посещениях!\n🎬 Полноэкранный режим работает в Safari на iPhone!`);
       
     } catch (error) {
       console.error('Ошибка загрузки:', error);
@@ -148,8 +163,8 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
           <div className="mt-4 text-xs text-gray-500 bg-white rounded-lg p-3">
             <p className="font-medium text-gray-700 mb-1">✅ Преимущества:</p>
             <p>• Полноэкранный режим работает в Safari на iPhone</p>
-            <p>• Видео сохраняется в браузере</p>
-            <p>• Максимальный размер: 100MB</p>
+            <p>• Видео сохраняется в браузере навсегда</p>
+            <p>• Максимальный размер: 2GB</p>
             <p>• Форматы: MP4, AVI, MOV, WMV, MKV</p>
           </div>
         </div>
