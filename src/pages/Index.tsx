@@ -247,30 +247,14 @@ const Index = () => {
                 }
 
                 if (videoInfo.type === 'google') {
-                  const directLink = currentVideoUrl.replace('/preview', '/view');
-                  
                   return (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center">
-                      <div className="text-center text-white p-8">
-                        <Icon name="Play" size={64} className="mx-auto mb-4 text-blue-400" />
-                        <h3 className="text-2xl font-bold mb-4">Видео готово к просмотру</h3>
-                        <p className="text-lg mb-6 text-gray-300">
-                          Нажмите кнопку ниже, чтобы открыть видео в полноэкранном режиме
-                        </p>
-                        <a
-                          href={directLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xl px-8 py-4 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-xl inline-flex items-center gap-3"
-                        >
-                          <Icon name="Play" size={24} />
-                          Смотреть видео
-                        </a>
-                        <p className="text-sm text-gray-400 mt-4">
-                          Откроется в Google Drive • Доступен полноэкранный режим
-                        </p>
-                      </div>
-                    </div>
+                    <iframe
+                      src={videoInfo.embedUrl}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allowFullScreen
+                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
+                    />
                   );
                 }
 
