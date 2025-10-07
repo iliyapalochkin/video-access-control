@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import VideoUploader from '@/components/VideoUploader';
+import funcUrls from '../../backend/func2url.json';
 
 const Index = () => {
   const [accessTime, setAccessTime] = useState<number | null>(null);
@@ -70,6 +71,96 @@ const Index = () => {
 
   // Загружаем сохраненное видео при загрузке страницы
   useEffect(() => {
+    const GOOGLE_DRIVE_URL = "https://drive.google.com/file/d/1eXbat2EkxhehBMJc7iE3sgM-RoThojFo/view";
+    
+    const saveToIndexedDB = async (filename: string, videoBase64: string, size: number): Promise<Blob> => {
+      return new Promise((resolve, reject) => {
+        try {
+          const byteCharacters = atob(videoBase64);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'video/mp4' });
+          
+          const file = new File([blob], filename, { type: 'video/mp4' });
+          
+          const request = indexedDB.open('VideoStorage', 1);
+          
+          request.onerror = () => reject(request.error);
+          
+          request.onupgradeneeded = (event) => {
+            const db = (event.target as IDBOpenDBRequest).result;
+            if (!db.objectStoreNames.contains('videos')) {
+              db.createObjectStore('videos');
+            }
+          };
+          
+          request.onsuccess = () => {
+            const db = request.result;
+            const transaction = db.transaction(['videos'], 'readwrite');
+            const store = transaction.objectStore('videos');
+            
+            const videoData = {
+              name: filename,
+              size: size,
+              type: 'video/mp4',
+              file: file,
+              uploadDate: new Date().toISOString()
+            };
+            
+            const putRequest = store.put(videoData, 'siteVideo');
+            
+            putRequest.onsuccess = () => {
+              db.close();
+              resolve(blob);
+            };
+            
+            putRequest.onerror = () => {
+              db.close();
+              reject(putRequest.error);
+            };
+          };
+        } catch (err) {
+          reject(err);
+        }
+      });
+    };
+    
+    const downloadFromGoogleDrive = async () => {
+      try {
+        console.log('Скачивание видео с Google Drive...');
+        
+        const response = await fetch(funcUrls['download-from-drive'], {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ driveUrl: GOOGLE_DRIVE_URL })
+        });
+
+        if (!response.ok) {
+          throw new Error('Ошибка загрузки с Google Drive');
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.message || 'Не удалось скачать видео');
+        }
+
+        const blob = await saveToIndexedDB(data.filename, data.videoBase64, data.size);
+        const videoUrl = URL.createObjectURL(blob);
+        setCurrentVideoUrl(videoUrl);
+        setVideoType('file');
+        
+        console.log('Видео успешно загружено и сохранено!');
+      } catch (err) {
+        console.error('Ошибка автозагрузки видео:', err);
+      }
+    };
+    
     const loadVideoFromIndexedDB = () => {
       const request = indexedDB.open('VideoStorage', 1);
       
@@ -77,6 +168,7 @@ const Index = () => {
         const db = request.result;
         if (!db.objectStoreNames.contains('videos')) {
           db.close();
+          downloadFromGoogleDrive();
           return;
         }
         
@@ -90,6 +182,9 @@ const Index = () => {
             const videoUrl = URL.createObjectURL(videoData.file);
             setCurrentVideoUrl(videoUrl);
             setVideoType('file');
+            console.log('Видео загружено из кэша');
+          } else {
+            downloadFromGoogleDrive();
           }
           db.close();
         };
@@ -97,11 +192,13 @@ const Index = () => {
         getRequest.onerror = () => {
           console.error('Ошибка загрузки видео из IndexedDB');
           db.close();
+          downloadFromGoogleDrive();
         };
       };
       
       request.onerror = () => {
         console.error('Ошибка открытия IndexedDB');
+        downloadFromGoogleDrive();
       };
     };
     
