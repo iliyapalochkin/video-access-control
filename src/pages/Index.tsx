@@ -69,57 +69,13 @@ const Index = () => {
     return { type: 'file' as const, embedUrl: url };
   };
 
-  // Автоматически скачиваем видео с Google Drive при первой загрузке
+  // Автоматически загружаем видео с Google Drive
   useEffect(() => {
-    const GOOGLE_DRIVE_URL = "https://drive.google.com/file/d/1eXbat2EkxhehBMJc7iE3sgM-RoThojFo/view";
+    const GOOGLE_DRIVE_FILE_ID = "1eXbat2EkxhehBMJc7iE3sgM-RoThojFo";
+    const embedUrl = `https://drive.google.com/file/d/${GOOGLE_DRIVE_FILE_ID}/preview`;
     
-    const downloadFromGoogleDrive = async () => {
-      try {
-        console.log('Скачивание видео с Google Drive...');
-        
-        const response = await fetch(funcUrls['download-from-drive'], {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ driveUrl: GOOGLE_DRIVE_URL })
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Ответ сервера:', errorText);
-          throw new Error(`Ошибка загрузки: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Данные получены:', { success: data.success, size: data.size });
-
-        if (!data.success) {
-          throw new Error(data.message || 'Не удалось скачать видео');
-        }
-
-        // Конвертируем base64 в Blob
-        const byteCharacters = atob(data.videoBase64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'video/mp4' });
-        
-        const videoUrl = URL.createObjectURL(blob);
-        setCurrentVideoUrl(videoUrl);
-        setVideoType('file');
-        
-        console.log('Видео успешно загружено! URL:', videoUrl);
-      } catch (err) {
-        console.error('Ошибка автозагрузки видео:', err);
-        console.error('Детали ошибки:', JSON.stringify(err));
-        // В случае ошибки оставляем Google Drive iframe
-      }
-    };
-    
-    downloadFromGoogleDrive();
+    setCurrentVideoUrl(embedUrl);
+    setVideoType('gdrive');
   }, []);
   const [showUploader, setShowUploader] = useState<boolean>(false);
 
