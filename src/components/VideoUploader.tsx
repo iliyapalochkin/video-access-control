@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import Icon from '@/components/ui/icon';
 import DirectVideoUploader from './DirectVideoUploader';
+import GoogleDriveDownloader from './GoogleDriveDownloader';
 
 interface VideoUploaderProps {
   onVideoSelect: (videoUrl: string) => void;
@@ -10,7 +11,7 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoUrl, setVideoUrl] = useState('');
-  const [activeTab, setActiveTab] = useState<'direct' | 'url' | 'cloud' | 'file'>('direct');
+  const [activeTab, setActiveTab] = useState<'gdrive' | 'direct' | 'url' | 'cloud' | 'file'>('gdrive');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,20 +181,30 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
       <h3 className="text-lg font-semibold mb-4 text-center">Добавить видео</h3>
       
       {/* Табы */}
-      <div className="grid grid-cols-2 gap-2 mb-4">
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <button
+          onClick={() => setActiveTab('gdrive')}
+          className={`py-3 px-2 rounded-lg text-xs font-medium transition-colors ${
+            activeTab === 'gdrive'
+              ? 'bg-green-600 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          📥 С Google Drive
+        </button>
         <button
           onClick={() => setActiveTab('direct')}
-          className={`py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
+          className={`py-3 px-2 rounded-lg text-xs font-medium transition-colors ${
             activeTab === 'direct'
               ? 'bg-blue-600 text-white shadow-lg'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          📱 Прямо на сайт
+          📱 С устройства
         </button>
         <button
           onClick={() => setActiveTab('url')}
-          className={`py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
+          className={`py-3 px-2 rounded-lg text-xs font-medium transition-colors ${
             activeTab === 'url'
               ? 'bg-blue-600 text-white shadow-lg'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -203,7 +214,9 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoSelect }) => {
         </button>
       </div>
 
-      {activeTab === 'direct' ? (
+      {activeTab === 'gdrive' ? (
+        <GoogleDriveDownloader onVideoDownloaded={onVideoSelect} />
+      ) : activeTab === 'direct' ? (
         <DirectVideoUploader onVideoSelect={onVideoSelect} />
       ) : activeTab === 'url' ? (
         <div className="text-center">
