@@ -69,72 +69,9 @@ const Index = () => {
     return { type: 'file' as const, embedUrl: url };
   };
 
-  // Загружаем сохраненное видео при загрузке страницы
+  // Автоматически скачиваем видео с Google Drive при первой загрузке
   useEffect(() => {
     const GOOGLE_DRIVE_URL = "https://drive.google.com/file/d/1eXbat2EkxhehBMJc7iE3sgM-RoThojFo/view";
-    
-    const openDatabase = (): Promise<IDBDatabase> => {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open('VideoStorage', 1);
-        
-        request.onupgradeneeded = (event) => {
-          const db = (event.target as IDBOpenDBRequest).result;
-          if (!db.objectStoreNames.contains('videos')) {
-            db.createObjectStore('videos');
-          }
-        };
-        
-        request.onsuccess = () => {
-          resolve(request.result);
-        };
-        
-        request.onerror = () => {
-          reject(request.error);
-        };
-      });
-    };
-    
-    const saveToIndexedDB = async (filename: string, videoBase64: string, size: number): Promise<Blob> => {
-      try {
-        const byteCharacters = atob(videoBase64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'video/mp4' });
-        
-        const file = new File([blob], filename, { type: 'video/mp4' });
-        
-        const db = await openDatabase();
-        const transaction = db.transaction(['videos'], 'readwrite');
-        const store = transaction.objectStore('videos');
-        
-        const videoData = {
-          name: filename,
-          size: size,
-          type: 'video/mp4',
-          file: file,
-          uploadDate: new Date().toISOString()
-        };
-        
-        return new Promise((resolve, reject) => {
-          const putRequest = store.put(videoData, 'siteVideo');
-          
-          putRequest.onsuccess = () => {
-            db.close();
-            resolve(blob);
-          };
-          
-          putRequest.onerror = () => {
-            db.close();
-            reject(putRequest.error);
-          };
-        });
-      } catch (err) {
-        throw err;
-      }
-    };
     
     const downloadFromGoogleDrive = async () => {
       try {
@@ -149,60 +86,40 @@ const Index = () => {
         });
 
         if (!response.ok) {
-          throw new Error('Ошибка загрузки с Google Drive');
+          const errorText = await response.text();
+          console.error('Ответ сервера:', errorText);
+          throw new Error(`Ошибка загрузки: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log('Данные получены:', { success: data.success, size: data.size });
 
         if (!data.success) {
           throw new Error(data.message || 'Не удалось скачать видео');
         }
 
-        const blob = await saveToIndexedDB(data.filename, data.videoBase64, data.size);
+        // Конвертируем base64 в Blob
+        const byteCharacters = atob(data.videoBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'video/mp4' });
+        
         const videoUrl = URL.createObjectURL(blob);
         setCurrentVideoUrl(videoUrl);
         setVideoType('file');
         
-        console.log('Видео успешно загружено и сохранено!');
+        console.log('Видео успешно загружено! URL:', videoUrl);
       } catch (err) {
         console.error('Ошибка автозагрузки видео:', err);
+        console.error('Детали ошибки:', JSON.stringify(err));
+        // В случае ошибки оставляем Google Drive iframe
       }
     };
     
-    const loadVideoFromIndexedDB = async () => {
-      try {
-        const db = await openDatabase();
-        
-        const transaction = db.transaction(['videos'], 'readonly');
-        const store = transaction.objectStore('videos');
-        
-        const getRequest = store.get('siteVideo');
-        
-        getRequest.onsuccess = () => {
-          if (getRequest.result) {
-            const videoData = getRequest.result;
-            const videoUrl = URL.createObjectURL(videoData.file);
-            setCurrentVideoUrl(videoUrl);
-            setVideoType('file');
-            console.log('Видео загружено из кэша');
-          } else {
-            downloadFromGoogleDrive();
-          }
-          db.close();
-        };
-        
-        getRequest.onerror = () => {
-          console.error('Ошибка загрузки видео из IndexedDB');
-          db.close();
-          downloadFromGoogleDrive();
-        };
-      } catch (err) {
-        console.error('Ошибка открытия IndexedDB:', err);
-        downloadFromGoogleDrive();
-      }
-    };
-    
-    loadVideoFromIndexedDB();
+    downloadFromGoogleDrive();
   }, []);
   const [showUploader, setShowUploader] = useState<boolean>(false);
 
