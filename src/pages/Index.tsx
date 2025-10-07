@@ -69,13 +69,13 @@ const Index = () => {
     return { type: 'file' as const, embedUrl: url };
   };
 
-  // Автоматически загружаем видео с Google Drive
+  // Автоматически загружаем видео с YouTube
   useEffect(() => {
-    const GOOGLE_DRIVE_FILE_ID = "1eXbat2EkxhehBMJc7iE3sgM-RoThojFo";
-    const embedUrl = `https://drive.google.com/file/d/${GOOGLE_DRIVE_FILE_ID}/preview`;
+    const YOUTUBE_VIDEO_ID = "HnwyFI_f3Q4";
+    const embedUrl = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0&modestbranding=1&autohide=1&showinfo=0`;
     
     setCurrentVideoUrl(embedUrl);
-    setVideoType('gdrive');
+    setVideoType('youtube');
   }, []);
   const [showUploader, setShowUploader] = useState<boolean>(false);
 
