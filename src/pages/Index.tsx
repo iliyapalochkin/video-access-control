@@ -233,14 +233,15 @@ const Index = () => {
                   );
                 }
 
-                if (videoInfo.type === 'google') {
+                if (videoInfo.type === 'google' || videoInfo.type === 'gdrive') {
                   return (
                     <iframe
                       src={videoInfo.embedUrl}
                       className="w-full h-full"
                       frameBorder="0"
                       allowFullScreen
-                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
+                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock; accelerometer; gyroscope;"
+                      style={{ border: 0 }}
                     />
                   );
                 }
