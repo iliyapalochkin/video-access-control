@@ -164,6 +164,13 @@ const Index = () => {
     const loadVideoFromIndexedDB = () => {
       const request = indexedDB.open('VideoStorage', 1);
       
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains('videos')) {
+          db.createObjectStore('videos');
+        }
+      };
+      
       request.onsuccess = () => {
         const db = request.result;
         if (!db.objectStoreNames.contains('videos')) {
