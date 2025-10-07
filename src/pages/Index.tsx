@@ -247,14 +247,34 @@ const Index = () => {
                 }
 
                 if (videoInfo.type === 'google') {
+                  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                  const directLink = currentVideoUrl.replace('/preview', '/view');
+                  
                   return (
-                    <iframe
-                      src={videoInfo.embedUrl}
-                      className="w-full h-full"
-                      frameBorder="0"
-                      allowFullScreen
-                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
-                    />
+                    <div className="w-full h-full relative">
+                      <iframe
+                        src={videoInfo.embedUrl}
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allowFullScreen
+                        allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
+                        webkitallowfullscreen="true"
+                        mozallowfullscreen="true"
+                      />
+                      {isMobile && (
+                        <div className="absolute top-4 right-4 z-10">
+                          <a
+                            href={directLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 text-sm font-medium"
+                          >
+                            <Icon name="Maximize" size={16} />
+                            На весь экран
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   );
                 }
 
