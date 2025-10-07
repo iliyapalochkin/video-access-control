@@ -204,6 +204,19 @@ const Index = () => {
 
         {/* Видеоплеер */}
         <div className="relative mb-8">
+          {/* Кнопка открыть в Google Drive для мобильных */}
+          <div className="mb-3 text-center md:hidden">
+            <a
+              href="https://drive.google.com/file/d/1eXbat2EkxhehBMJc7iE3sgM-RoThojFo/view"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg"
+            >
+              <Icon name="Maximize2" size={20} />
+              Открыть видео на полный экран
+            </a>
+          </div>
+          
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl relative">
             {currentVideoUrl ? (
               (() => {
