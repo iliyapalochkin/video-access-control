@@ -66,14 +66,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         file_extension = filename.split('.')[-1] if '.' in filename else 'mp4'
         unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
         
-        # Сохраняем файл во временную директорию
-        temp_path = f"/tmp/{unique_filename}"
-        with open(temp_path, 'wb') as f:
-            f.write(video_bytes)
-        
-        # В реальном проекте здесь был бы загрузка в S3/Яндекс.Диск
-        # Пока возвращаем путь к временному файлу
+        # Возвращаем base64 видео обратно для хранения на клиенте
+        # т.к. Cloud Functions не имеют постоянного хранилища
         file_size = len(video_bytes)
+        
+        # Создаем data URL для прямого использования
+        mime_type = body_data.get('mimeType', 'video/mp4')
+        data_url = f"data:{mime_type};base64,{video_data}"
         
         return {
             'statusCode': 200,
@@ -85,8 +84,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'success': True,
                 'filename': unique_filename,
                 'size': file_size,
-                'url': f'/tmp/{unique_filename}',  # Временно
-                'message': f'Video uploaded successfully. Size: {file_size} bytes'
+                'dataUrl': data_url,
+                'message': f'Video processed successfully. Size: {file_size} bytes. Store in localStorage for persistence.'
             })
         }
         

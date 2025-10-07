@@ -33,39 +33,61 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleDirectUpload = async (file: File) => {
-    // Предупреждаем пользователя о том, что видео будет видно только у него
-    const userConfirmed = window.confirm(`⚠️ ВАЖНО: Видео будет видно только на ВАШЕМ устройстве!
-
-🔍 Чтобы видео было доступно всем посетителям сайта:
-1. Загрузите видео на Google Drive, Dropbox или YouTube
-2. Получите публичную ссылку 
-3. Используйте вкладку "🔗 По ссылке"
-
-Продолжить загрузку только для вашего устройства?`);
-    
-    if (!userConfirmed) {
-      return;
-    }
-
     setIsUploading(true);
     setUploadProgress(0);
 
     try {
-      // Создаем URL для прямого воспроизведения
-      const videoUrl = URL.createObjectURL(file);
+      const fileSize = file.size;
+      const maxSize = 100 * 1024 * 1024; // 100MB максимум для localStorage
       
-      // Имитируем прогресс загрузки
-      const progressSteps = [10, 25, 50, 75, 90, 100];
-      for (let i = 0; i < progressSteps.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        setUploadProgress(progressSteps[i]);
+      setUploadProgress(10);
+      
+      if (fileSize > maxSize) {
+        alert(`⚠️ Файл слишком большой (${formatFileSize(fileSize)})!\n\nМаксимум для прямой загрузки: 100MB\n\n💡 Используйте вкладку "🔗 По ссылке" и загрузите видео на Google Drive, Dropbox или YouTube`);
+        return;
       }
-
+      
+      setUploadProgress(20);
+      
+      // Конвертируем в base64
+      const base64Data = await convertToBase64(file);
+      setUploadProgress(60);
+      
+      // Сохраняем в localStorage
+      const videoData = {
+        name: file.name,
+        size: fileSize,
+        type: file.type,
+        data: base64Data,
+        uploadDate: new Date().toISOString()
+      };
+      
+      try {
+        localStorage.setItem('siteVideo', JSON.stringify(videoData));
+        setUploadProgress(80);
+      } catch (storageError) {
+        alert('⚠️ Не удалось сохранить видео в localStorage (превышен лимит).\n\n💡 Используйте файл меньшего размера или загрузите на облачное хранилище');
+        return;
+      }
+      
+      // Создаем URL для воспроизведения
+      const videoUrl = URL.createObjectURL(file);
+      setUploadProgress(100);
+      
       // Передаем URL для воспроизведения
       onVideoSelect(videoUrl);
       
-      alert(`✅ Видео готово к просмотру на ВАШЕМ устройстве!\nРазмер: ${formatFileSize(file.size)}\nТип: ${file.type}\n\n⚠️ Другие пользователи НЕ увидят это видео!\n\n💡 Для публичного доступа используйте "🔗 По ссылке"`);
+      alert(`✅ Видео сохранено и готово к просмотру!\nРазмер: ${formatFileSize(fileSize)}\nФормат: ${file.type}\n\n✨ Видео сохранено в браузере и будет доступно при следующих посещениях!`);
       
     } catch (error) {
       console.error('Ошибка загрузки:', error);
@@ -85,8 +107,8 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
           <h3 className="text-lg font-semibold mb-2 text-gray-800">Загрузить с устройства</h3>
           
           <p className="text-gray-600 mb-4 text-sm">
-            ⚠️ <span className="text-orange-600 font-medium">Видео будет видно только вам!</span><br/>
-            <span className="text-gray-500">Для всех посетителей используйте "🔗 По ссылке"</span>
+            ✅ <span className="text-green-600 font-medium">Видео сохранится в браузере</span><br/>
+            <span className="text-gray-500">Работает на всех устройствах включая Safari на iPhone</span>
           </p>
 
           {isUploading ? (
@@ -125,9 +147,9 @@ const DirectVideoUploader: React.FC<DirectVideoUploaderProps> = ({ onVideoSelect
 
           <div className="mt-4 text-xs text-gray-500 bg-white rounded-lg p-3">
             <p className="font-medium text-gray-700 mb-1">✅ Преимущества:</p>
-            <p>• Воспроизведение прямо на сайте</p>
-            <p>• Мгновенная загрузка без ожидания</p>
-            <p>• Поддержка файлов любого размера</p>
+            <p>• Полноэкранный режим работает в Safari на iPhone</p>
+            <p>• Видео сохраняется в браузере</p>
+            <p>• Максимальный размер: 100MB</p>
             <p>• Форматы: MP4, AVI, MOV, WMV, MKV</p>
           </div>
         </div>
