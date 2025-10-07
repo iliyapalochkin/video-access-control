@@ -73,59 +73,67 @@ const Index = () => {
   useEffect(() => {
     const GOOGLE_DRIVE_URL = "https://drive.google.com/file/d/1eXbat2EkxhehBMJc7iE3sgM-RoThojFo/view";
     
-    const saveToIndexedDB = async (filename: string, videoBase64: string, size: number): Promise<Blob> => {
+    const openDatabase = (): Promise<IDBDatabase> => {
       return new Promise((resolve, reject) => {
-        try {
-          const byteCharacters = atob(videoBase64);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        const request = indexedDB.open('VideoStorage', 1);
+        
+        request.onupgradeneeded = (event) => {
+          const db = (event.target as IDBOpenDBRequest).result;
+          if (!db.objectStoreNames.contains('videos')) {
+            db.createObjectStore('videos');
           }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'video/mp4' });
-          
-          const file = new File([blob], filename, { type: 'video/mp4' });
-          
-          const request = indexedDB.open('VideoStorage', 1);
-          
-          request.onerror = () => reject(request.error);
-          
-          request.onupgradeneeded = (event) => {
-            const db = (event.target as IDBOpenDBRequest).result;
-            if (!db.objectStoreNames.contains('videos')) {
-              db.createObjectStore('videos');
-            }
-          };
-          
-          request.onsuccess = () => {
-            const db = request.result;
-            const transaction = db.transaction(['videos'], 'readwrite');
-            const store = transaction.objectStore('videos');
-            
-            const videoData = {
-              name: filename,
-              size: size,
-              type: 'video/mp4',
-              file: file,
-              uploadDate: new Date().toISOString()
-            };
-            
-            const putRequest = store.put(videoData, 'siteVideo');
-            
-            putRequest.onsuccess = () => {
-              db.close();
-              resolve(blob);
-            };
-            
-            putRequest.onerror = () => {
-              db.close();
-              reject(putRequest.error);
-            };
-          };
-        } catch (err) {
-          reject(err);
-        }
+        };
+        
+        request.onsuccess = () => {
+          resolve(request.result);
+        };
+        
+        request.onerror = () => {
+          reject(request.error);
+        };
       });
+    };
+    
+    const saveToIndexedDB = async (filename: string, videoBase64: string, size: number): Promise<Blob> => {
+      try {
+        const byteCharacters = atob(videoBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'video/mp4' });
+        
+        const file = new File([blob], filename, { type: 'video/mp4' });
+        
+        const db = await openDatabase();
+        const transaction = db.transaction(['videos'], 'readwrite');
+        const store = transaction.objectStore('videos');
+        
+        const videoData = {
+          name: filename,
+          size: size,
+          type: 'video/mp4',
+          file: file,
+          uploadDate: new Date().toISOString()
+        };
+        
+        return new Promise((resolve, reject) => {
+          const putRequest = store.put(videoData, 'siteVideo');
+          
+          putRequest.onsuccess = () => {
+            db.close();
+            resolve(blob);
+          };
+          
+          putRequest.onerror = () => {
+            db.close();
+            reject(putRequest.error);
+          };
+        });
+      } catch (err) {
+        throw err;
+      }
     };
     
     const downloadFromGoogleDrive = async () => {
@@ -161,26 +169,13 @@ const Index = () => {
       }
     };
     
-    const loadVideoFromIndexedDB = () => {
-      const request = indexedDB.open('VideoStorage', 1);
-      
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        if (!db.objectStoreNames.contains('videos')) {
-          db.createObjectStore('videos');
-        }
-      };
-      
-      request.onsuccess = () => {
-        const db = request.result;
-        if (!db.objectStoreNames.contains('videos')) {
-          db.close();
-          downloadFromGoogleDrive();
-          return;
-        }
+    const loadVideoFromIndexedDB = async () => {
+      try {
+        const db = await openDatabase();
         
         const transaction = db.transaction(['videos'], 'readonly');
         const store = transaction.objectStore('videos');
+        
         const getRequest = store.get('siteVideo');
         
         getRequest.onsuccess = () => {
@@ -201,12 +196,10 @@ const Index = () => {
           db.close();
           downloadFromGoogleDrive();
         };
-      };
-      
-      request.onerror = () => {
-        console.error('Ошибка открытия IndexedDB');
+      } catch (err) {
+        console.error('Ошибка открытия IndexedDB:', err);
         downloadFromGoogleDrive();
-      };
+      }
     };
     
     loadVideoFromIndexedDB();
