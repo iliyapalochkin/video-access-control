@@ -202,18 +202,21 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Кнопка "Открыть в Яндекс Браузере" для мобильных */}
+        {/* Кнопка "Скопировать ссылку" для мобильных */}
         {currentVideoUrl && (
           <div className="mb-4 text-center md:hidden">
-            <a
-              href={`yandexbrowser://open-url?url=${encodeURIComponent(window.location.href)}`}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Ссылка скопирована! Откройте её в Яндекс Браузере для лучшего просмотра');
+              }}
               className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg"
             >
-              <Icon name="ExternalLink" size={20} />
-              Открыть в Яндекс Браузере
-            </a>
+              <Icon name="Copy" size={20} />
+              Скопировать ссылку для Яндекс Браузера
+            </button>
             <p className="text-sm text-gray-500 mt-2">
-              Для лучшего просмотра на полном экране
+              Вставьте ссылку в Яндекс Браузер для полноэкранного просмотра
             </p>
           </div>
         )}
