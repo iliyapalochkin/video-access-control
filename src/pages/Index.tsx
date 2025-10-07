@@ -221,6 +221,18 @@ const Index = () => {
                   );
                 }
 
+                if (videoInfo.type === 'youtube') {
+                  return (
+                    <iframe
+                      src={videoInfo.embedUrl}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    />
+                  );
+                }
+
                 if (videoInfo.type === 'yandex') {
                   return (
                     <iframe
