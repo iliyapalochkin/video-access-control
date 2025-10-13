@@ -16,13 +16,15 @@ const Index = () => {
   // Функция для определения типа видео и получения embed URL
   const getVideoInfo = (url: string) => {
     if (url.includes('vkvideo.ru') || url.includes('vk.com/video')) {
-      // Извлекаем ID из VK ссылки
-      const match = url.match(/video(-?\d+_\d+)/);
+      // Извлекаем ID из VK ссылки (убираем параметры после ?)
+      const cleanUrl = url.split('?')[0];
+      const match = cleanUrl.match(/video(-?\d+_\d+)/);
       if (match) {
         const videoId = match[1];
+        const [oid, id] = videoId.split('_');
         return {
           type: 'vk' as const,
-          embedUrl: `https://vk.com/video_ext.php?oid=${videoId.split('_')[0]}&id=${videoId.split('_')[1]}&hd=2`
+          embedUrl: `https://vk.com/video_ext.php?oid=${oid}&id=${id}&hd=2`
         };
       }
     }
