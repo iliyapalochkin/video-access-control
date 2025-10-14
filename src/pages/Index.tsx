@@ -20,9 +20,10 @@ const Index = () => {
       const match = cleanUrl.match(/video(-?\d+_\d+)/);
       if (match) {
         const videoId = match[1];
+        const [oid, vid] = videoId.split('_');
         return {
           type: 'vk' as const,
-          embedUrl: `https://vk.com/video_ext.php?${videoId}&hd=2&autoplay=1`
+          embedUrl: `https://vk.com/video_ext.php?oid=${oid}&id=${vid}&hd=2`
         };
       }
     }
