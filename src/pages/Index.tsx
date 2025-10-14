@@ -203,6 +203,18 @@ const Index = () => {
           </p>
         </div>
 
+        {/* Видео */}
+        <div className="relative mb-8">
+          <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
+            <iframe
+              src="https://vk.com/video_ext.php?oid=-220754053&id=456243917&hd=2"
+              className="w-full h-full"
+              frameBorder="0"
+              allowFullScreen
+              allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+            />
+          </div>
+        </div>
 
 
         {/* Кнопки CTA */}
