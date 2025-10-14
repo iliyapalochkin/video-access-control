@@ -211,15 +211,18 @@ const Index = () => {
                 
                 if (videoInfo.type === 'vk') {
                   return (
-                    <iframe
-                      src={videoInfo.embedUrl}
-                      className="w-full h-full"
-                      frameBorder="0"
-                      allowFullScreen
-                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
-                      width="100%"
-                      height="100%"
-                    />
+                    <div className="w-full h-full">
+                      <iframe
+                        src={videoInfo.embedUrl}
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allowFullScreen
+                        allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;"
+                        sandbox="allow-scripts allow-same-origin allow-presentation"
+                        width="100%"
+                        height="100%"
+                      />
+                    </div>
                   );
                 }
 
