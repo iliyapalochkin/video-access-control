@@ -207,7 +207,7 @@ const Index = () => {
         <div className="relative mb-8">
           <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
             <iframe
-              src="https://vk.com/video_ext.php?oid=-220754053&id=456243917&hd=2"
+              src="https://vk.com/video_ext.php?oid=-232832261&id=456239018&hd=2"
               className="w-full h-full"
               frameBorder="0"
               allowFullScreen
