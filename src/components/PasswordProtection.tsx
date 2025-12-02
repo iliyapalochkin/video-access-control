@@ -49,7 +49,7 @@ export default function PasswordProtection({ children }: PasswordProtectionProps
         </div>
         
         <h1 className="text-2xl font-bold text-center mb-2 text-foreground">
-          Защищенный доступ
+          Упс, вы опять кого-то упустили
         </h1>
         <p className="text-center text-muted-foreground mb-6">
           Введите пароль для продолжения
